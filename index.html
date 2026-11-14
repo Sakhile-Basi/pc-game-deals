@@ -1,40 +1,92 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PC Game Deals</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
+    <!-- Controls the sidebar without JavaScript -->
+    <input type="checkbox" id="sidebar-toggle" class="sidebar-checkbox" />
 
-    <header>
-        <h1>PC Game Deals</h1>
-        <p>Find your next game at a great price.</p>
-    </header>
+    <div class="app-shell">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <a href="#discover" class="brand">
+            <span class="brand-icon">P</span>
+            <span class="sidebar-text">PC Deals</span>
+          </a>
 
-    
-<main>
-    <section class="controls">
-        <input
-            type="text"
-            id="search-input"
-            placeholder="Search for a game..."
-        >
+          <label
+            for="sidebar-toggle"
+            class="collapse-button"
+            aria-label="Collapse or open sidebar"
+          >
+            <span>‹</span>
+          </label>
+        </div>
 
-        <label>
-            <input type="checkbox" id="sale-filter">
-            Show sale games only
-        </label>
-    </section>
+        <div class="sidebar-section">
+          <p class="sidebar-heading sidebar-text">DISCOVER</p>
 
-    <section id="games-container">
-        <!-- Game cards will be added here using JavaScript -->
-    </section>
-</main>
+          <nav class="sidebar-nav">
+            <a href="#discover" id="all-games-link" class="nav-link active">
+              <span class="nav-icon">⌂</span>
+              <span class="sidebar-text">All Games</span>
+            </a>
 
+            <button type="button" id="sale-games-link" class="nav-link">
+              <span class="nav-icon">%</span>
+              <span class="sidebar-text">Sale Games</span>
+            </button>
+          </nav>
+        </div>
 
-</body>
+        <div class="sidebar-footer">
+          <p class="sidebar-text">Find your next favourite game.</p>
+        </div>
+      </aside>
+
+      <!-- Mobile sidebar backdrop -->
+      <label for="sidebar-toggle" class="sidebar-backdrop"></label>
+
+      <!-- Main content -->
+      <main class="main-content" id="discover">
+        <header class="topbar">
+          <label for="sidebar-toggle" class="mobile-menu-button">
+            <span>☰</span>
+          </label>
+
+          <div>
+            <p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p>
+            <h1>Discover games</h1>
+            <p class="page-description">Great games. Better prices.</p>
+          </div>
+        </header>
+
+        <section class="controls">
+          <div class="search-wrapper">
+            <span class="search-icon">⌕</span>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search games..."
+            />
+          </div>
+
+          <p class="controls-hint">Explore the collection</p>
+        </section>
+
+        <section id="games-container">
+          <!-- Game cards will be added here using JavaScript -->
+        </section>
+      </main>
+    </div>
+
+    <!-- Existing JavaScript expects this checkbox ID -->
+    <input type="checkbox" id="sale-filter" class="sale-filter-checkbox" />
+  </body>
 </html>
