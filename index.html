@@ -61,7 +61,7 @@
           </label>
 
           <div>
-            <p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p>
+            <p class="eyebrow">LOOK NO FURTHER</p>
             <h1>Discover games</h1>
             <p class="page-description">Great games. Better prices.</p>
           </div>
@@ -78,6 +78,46 @@
           </div>
 
           <p class="controls-hint">Explore the collection</p>
+        </section>
+
+        <!-- Filtering controls -->
+        <section class="filter-controls">
+          <div class="filter-group">
+            <label for="store-filter">Store</label>
+            <select id="store-filter">
+              <option value="all">All Stores</option>
+              <option value="Steam">Steam</option>
+              <option value="GOG">GOG</option>
+              <option value="Epic Games">Epic Games</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="min-discount-filter">Minimum Discount</label>
+            <select id="min-discount-filter">
+              <option value="0">Any Discount</option>
+              <option value="10">10% or more</option>
+              <option value="25">25% or more</option>
+              <option value="50">50% or more</option>
+              <option value="75">75% or more</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Results and sorting -->
+        <section class="results-controls">
+          <p id="results-count">Showing all games</p>
+
+          <div class="filter-group sort-group">
+            <label for="sort-filter">Sort by</label>
+            <select id="sort-filter">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="discount-desc">Biggest Discount</option>
+              <option value="name-asc">Name: A to Z</option>
+            </select>
+          </div>
         </section>
 
         <section id="games-container">

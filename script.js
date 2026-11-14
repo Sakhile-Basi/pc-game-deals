@@ -14,8 +14,8 @@ fetch("deals.json")
     console.log("Cheapest game:", cheapestGame);
     console.log("Current price:", getCurrentPrice(cheapestGame));
 
-    // Display all games when the page loads
-    displayGames(games);
+    // Apply the default filters and display games
+    applyFilters();
   })
   .catch((error) => {
     console.error("Error loading games:", error);
@@ -93,20 +93,20 @@ function displayGames(games) {
 
     gameCard.classList.add("game-card");
     if (["Hollow Knight", "Celeste", "Cuphead"].includes(game.title)) {
-    gameCard.classList.add("show-full-art");
-}
+      gameCard.classList.add("show-full-art");
+    }
 
-if (game.title === "Hollow Knight") {
-    gameCard.classList.add("hollow-knight-card");
-}
+    if (game.title === "Hollow Knight") {
+      gameCard.classList.add("hollow-knight-card");
+    }
 
-if (game.title === "Celeste") {
-    gameCard.classList.add("celeste-card");
-}
+    if (game.title === "Celeste") {
+      gameCard.classList.add("celeste-card");
+    }
 
-if (game.title === "Cuphead") {
-    gameCard.classList.add("cuphead-card");
-}
+    if (game.title === "Cuphead") {
+      gameCard.classList.add("cuphead-card");
+    }
 
     const currentPrice = getCurrentPrice(game);
 
@@ -151,12 +151,22 @@ if (game.title === "Cuphead") {
 const searchInput = document.getElementById("search-input");
 const saleFilter = document.getElementById("sale-filter");
 
+const storeFilter = document.getElementById("store-filter");
+const minDiscountFilter = document.getElementById("min-discount-filter");
+const sortFilter = document.getElementById("sort-filter");
+const resultsCount = document.getElementById("results-count");
+
 const allGamesLink = document.getElementById("all-games-link");
 const saleGamesLink = document.getElementById("sale-games-link");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 
 // Listen for search input
 searchInput.addEventListener("input", applyFilters);
+
+// Listen for filter and sorting changes
+storeFilter.addEventListener("change", applyFilters);
+minDiscountFilter.addEventListener("change", applyFilters);
+sortFilter.addEventListener("change", applyFilters);
 
 // Update the active sidebar navigation item
 function updateActiveNavigation(section) {
@@ -196,17 +206,73 @@ saleGamesLink.addEventListener("click", () => {
 });
 
 // Apply the search and sale filters
+
 function applyFilters() {
   const searchTerm = searchInput.value;
+  const selectedStore = storeFilter.value;
+  const minimumDiscount = Number(minDiscountFilter.value);
+  const selectedSort = sortFilter.value;
 
-  // First, filter games according to the search term
+  // 1. Search games by title
   let filteredGames = searchGames(games, searchTerm);
 
-  // If the sale-only checkbox is selected, show only discounted games
+  // 2. Apply the Sale Games navigation filter
   if (saleFilter.checked) {
     filteredGames = getGamesOnSale(filteredGames);
   }
 
-  // Display the filtered results
+  // 3. Filter games by store
+  if (selectedStore !== "all") {
+    filteredGames = filteredGames.filter((game) => {
+      return game.store === selectedStore;
+    });
+  }
+
+  // 4. Filter games by minimum discount
+  if (minimumDiscount > 0) {
+    filteredGames = filteredGames.filter((game) => {
+      return calculateDiscount(game) >= minimumDiscount;
+    });
+  }
+
+  // 5. Sort the filtered games
+  // Create a copy so we don't change the original games array
+  filteredGames = [...filteredGames];
+
+  switch (selectedSort) {
+    case "price-asc":
+      filteredGames.sort((a, b) => {
+        return getCurrentPrice(a) - getCurrentPrice(b);
+      });
+      break;
+
+    case "price-desc":
+      filteredGames.sort((a, b) => {
+        return getCurrentPrice(b) - getCurrentPrice(a);
+      });
+      break;
+
+    case "discount-desc":
+      filteredGames.sort((a, b) => {
+        return calculateDiscount(b) - calculateDiscount(a);
+      });
+      break;
+
+    case "name-asc":
+      filteredGames.sort((a, b) => {
+        return a.title.localeCompare(b.title);
+      });
+      break;
+
+    case "featured":
+    default:
+      // Keep the original JSON order
+      break;
+  }
+
+  // 6. Update the results count
+  resultsCount.textContent = `Showing ${filteredGames.length} of ${games.length} games`;
+
+  // 7. Display the final results
   displayGames(filteredGames);
 }
