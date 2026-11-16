@@ -1,25 +1,90 @@
 let games = [];
+let totalRecords = 0;
 
 // Load game data from the JSON file
-fetch("deals.json")
-  .then((response) => response.json())
-  .then((data) => {
-    games = data;
+async function loadGames() {
+  try {
+    const response = await fetch("deals.json");
 
-    console.log("Games loaded:", games);
+    if (!response.ok) {
+      throw new Error("Failed to load game data");
+    }
 
-    // Find and display the cheapest game
-    const cheapestGame = findCheapestGame(games);
+    const data = await response.json();
 
-    console.log("Cheapest game:", cheapestGame);
-    console.log("Current price:", getCurrentPrice(cheapestGame));
+    if (!Array.isArray(data)) {
+      throw new Error("Game data must be an array");
+    }
 
-    // Apply the default filters and display games
-    applyFilters();
-  })
-  .catch((error) => {
+    totalRecords = data.length;
+
+    const validGames = data.filter(isValidGame);
+
+    games = validGames;
+
+    if (validGames.length !== data.length) {
+      console.warn("Some game records failed validation.");
+    }
+  } catch (error) {
     console.error("Error loading games:", error);
-  });
+
+    gamesContainer.innerHTML = `
+      <p class="empty-message">
+        Unable to load games. Please try again later.
+      </p>
+    `;
+
+    return;
+  }
+
+  console.log("Games loaded:", games);
+
+  if (totalRecords === 0) {
+    gamesContainer.innerHTML = `
+    <p class="empty-message">
+      No games are currently available.
+    </p>
+  `;
+    return;
+  }
+
+  if (games.length === 0) {
+    gamesContainer.innerHTML = `
+    <p class="empty-message">
+      Game data could not be validated.
+    </p>
+  `;
+    return;
+  }
+
+  applyFilters();
+}
+
+// Validate the structure of a game object
+function isValidGame(game) {
+  // Reject null, non-objects and arrays so one bad record can't break loading
+  if (game === null || typeof game !== "object" || Array.isArray(game)) {
+    return false;
+  }
+
+  return (
+    Number.isFinite(game.id) &&
+    game.id > 0 &&
+    typeof game.title === "string" &&
+    game.title.trim() !== "" &&
+    Number.isFinite(game.normalPrice) &&
+    game.normalPrice >= 0 &&
+    Number.isFinite(game.salePrice) &&
+    game.salePrice >= 0 &&
+    game.salePrice <= game.normalPrice &&
+    typeof game.store === "string" &&
+    game.store.trim() !== "" &&
+    typeof game.storeUrl === "string" &&
+    game.storeUrl.trim() !== "" &&
+    typeof game.image === "string" &&
+    game.image.trim() !== ""
+  );
+}
 
 // Check whether a game is on sale
 function isOnSale(game) {
@@ -31,8 +96,12 @@ function getGamesOnSale(games) {
   return games.filter(isOnSale);
 }
 
-// Calculate the discount percentage
+// Calculate the discount percentage accounting for the scenario where the normal price is zero to avoid division by zero errors.
 function calculateDiscount(game) {
+  if (game.normalPrice === 0) {
+    return 0;
+  }
+
   const discount =
     ((game.normalPrice - game.salePrice) / game.normalPrice) * 100;
 
@@ -48,21 +117,6 @@ function getCurrentPrice(game) {
   }
 }
 
-// Find the cheapest game in the list
-function findCheapestGame(games) {
-  if (games.length === 0) {
-    return null;
-  }
-
-  return games.reduce((cheapest, currentGame) => {
-    if (getCurrentPrice(currentGame) < getCurrentPrice(cheapest)) {
-      return currentGame;
-    } else {
-      return cheapest;
-    }
-  });
-}
-
 // Search games by title
 function searchGames(games, searchTerm) {
   const search = searchTerm.toLowerCase().trim();
@@ -72,19 +126,36 @@ function searchGames(games, searchTerm) {
   });
 }
 
+// Update the visibility of the "Clear Filters" button
+function updateClearFiltersVisibility() {
+  const hasActiveFilters =
+    searchInput.value.trim() !== "" ||
+    storeFilter.value !== "all" ||
+    Number(minDiscountFilter.value) > 0 ||
+    saleFilter.checked ||
+    sortFilter.value !== "featured";
+
+  clearFiltersButton.hidden = !hasActiveFilters;
+}
+
 // Game card rendering
 const gamesContainer = document.getElementById("games-container");
+const specialGameStyles = {
+  "Hollow Knight": ["show-full-art", "hollow-knight-card"],
+  Celeste: ["show-full-art", "celeste-card"],
+  Cuphead: ["show-full-art", "cuphead-card"],
+};
 
 function displayGames(games) {
   gamesContainer.innerHTML = "";
 
   // Display a message when no games match the search
   if (games.length === 0) {
-    gamesContainer.innerHTML = `
-            <p class="empty-message">
-                No games found. Try another search.
-            </p>
-        `;
+    const message = document.createElement("p");
+    message.classList.add("empty-message");
+    message.textContent = "No games found. Try another search.";
+
+    gamesContainer.appendChild(message);
     return;
   }
 
@@ -92,57 +163,109 @@ function displayGames(games) {
     const gameCard = document.createElement("article");
 
     gameCard.classList.add("game-card");
-    if (["Hollow Knight", "Celeste", "Cuphead"].includes(game.title)) {
-      gameCard.classList.add("show-full-art");
-    }
 
-    if (game.title === "Hollow Knight") {
-      gameCard.classList.add("hollow-knight-card");
-    }
+    // Apply special styles for specific games
+    const specialClasses = specialGameStyles[game.title] || [];
 
-    if (game.title === "Celeste") {
-      gameCard.classList.add("celeste-card");
-    }
-
-    if (game.title === "Cuphead") {
-      gameCard.classList.add("cuphead-card");
-    }
-
+    gameCard.classList.add(...specialClasses);
     const currentPrice = getCurrentPrice(game);
+    const onSale = isOnSale(game);
 
-    gameCard.innerHTML = `
-    <div class="game-image-wrapper">
-        <img
-            src="${game.image}"
-            alt="${game.title} game artwork"
-            class="game-image"
-            loading="lazy"
-        >
-        ${
-          isOnSale(game)
-            ? `<span class="sale-label">${calculateDiscount(game)}% OFF</span>`
-            : ""
-        }
-    </div>
+    // Create the image wrapper
+    const imageWrapper = document.createElement("div");
+    imageWrapper.classList.add("game-image-wrapper");
 
-    <div class="game-info">
-        <div class="game-details">
-            <div>
-                <h2>${game.title}</h2>
-                <p class="game-store">${game.store}</p>
-            </div>
+    const image = document.createElement("img");
 
-            <div class="game-pricing">
-                ${
-                  isOnSale(game)
-                    ? `<span class="normal-price">R${game.normalPrice.toFixed(2)}</span>`
-                    : ""
-                }
-                <span class="current-price">R${currentPrice.toFixed(2)}</span>
-            </div>
-        </div>
-    </div>
-`;
+    image.src = game.image;
+    image.alt = `${game.title} game artwork`;
+    image.classList.add("game-image");
+    image.loading = "lazy";
+
+    imageWrapper.appendChild(image);
+
+    // Display sale label when applicable
+    if (onSale) {
+      const saleLabel = document.createElement("span");
+      saleLabel.classList.add("sale-label");
+      saleLabel.textContent = `${calculateDiscount(game)}% OFF`;
+
+      imageWrapper.appendChild(saleLabel);
+    }
+
+    // Create game information section
+    const gameInfo = document.createElement("div");
+    gameInfo.classList.add("game-info");
+
+    const gameDetails = document.createElement("div");
+    gameDetails.classList.add("game-details");
+
+    // Create title and store information
+    const gameIdentity = document.createElement("div");
+
+    const title = document.createElement("h2");
+    title.textContent = game.title;
+
+    const store = document.createElement("p");
+    store.classList.add("game-store");
+    store.textContent = game.store;
+
+    gameIdentity.append(title, store);
+
+    // Create pricing section
+    const pricing = document.createElement("div");
+    pricing.classList.add("game-pricing");
+
+    if (onSale) {
+      const normalPrice = document.createElement("span");
+      normalPrice.classList.add("normal-price");
+      normalPrice.textContent = `R${game.normalPrice.toFixed(2)}`;
+
+      pricing.appendChild(normalPrice);
+    }
+
+    const salePrice = document.createElement("span");
+    salePrice.classList.add("current-price");
+    salePrice.textContent = `R${currentPrice.toFixed(2)}`;
+
+    pricing.appendChild(salePrice);
+
+    // Create store link
+    const storeLink = document.createElement("a");
+    let validStoreUrl = false;
+
+    try {
+      const parsedUrl = new URL(game.storeUrl);
+
+      if (["https:", "http:"].includes(parsedUrl.protocol)) {
+        storeLink.href = parsedUrl.href;
+        validStoreUrl = true;
+      }
+    } catch (error) {
+      console.warn(`Invalid store URL for ${game.title}:`, error);
+    }
+    storeLink.classList.add("store-link");
+    storeLink.target = "_blank";
+    storeLink.rel = "noopener noreferrer";
+
+    storeLink.append(document.createTextNode(`View on ${game.store} `));
+
+    const linkIcon = document.createElement("span");
+    linkIcon.setAttribute("aria-hidden", "true");
+    linkIcon.textContent = "↗";
+
+    storeLink.appendChild(linkIcon);
+
+    // Assemble the card
+    gameDetails.append(gameIdentity, pricing);
+
+    if (validStoreUrl) {
+      gameDetails.appendChild(storeLink);
+    }
+    gameInfo.appendChild(gameDetails);
+
+    gameCard.append(imageWrapper, gameInfo);
+
     gamesContainer.appendChild(gameCard);
   });
 }
@@ -155,6 +278,7 @@ const storeFilter = document.getElementById("store-filter");
 const minDiscountFilter = document.getElementById("min-discount-filter");
 const sortFilter = document.getElementById("sort-filter");
 const resultsCount = document.getElementById("results-count");
+const clearFiltersButton = document.getElementById("clear-filters");
 
 const allGamesLink = document.getElementById("all-games-link");
 const saleGamesLink = document.getElementById("sale-games-link");
@@ -167,6 +291,9 @@ searchInput.addEventListener("input", applyFilters);
 storeFilter.addEventListener("change", applyFilters);
 minDiscountFilter.addEventListener("change", applyFilters);
 sortFilter.addEventListener("change", applyFilters);
+
+// Listen for the clear filters button click
+clearFiltersButton.addEventListener("click", clearFilters);
 
 // Update the active sidebar navigation item
 function updateActiveNavigation(section) {
@@ -195,7 +322,9 @@ allGamesLink.addEventListener("click", (event) => {
 });
 
 // Sale Games navigation
-saleGamesLink.addEventListener("click", () => {
+saleGamesLink.addEventListener("click", (event) => {
+  event.preventDefault();
+
   saleFilter.checked = true;
 
   updateActiveNavigation("sale");
@@ -204,6 +333,48 @@ saleGamesLink.addEventListener("click", () => {
 
   closeMobileSidebar();
 });
+
+// Display currently active filters
+function updateActiveFilters() {
+  const activeFilters = document.getElementById("active-filters");
+
+  activeFilters.innerHTML = "";
+
+  const filters = [];
+
+  // Active search
+  if (searchInput.value.trim() !== "") {
+    filters.push(`Search: "${searchInput.value.trim()}"`);
+  }
+
+  // Selected store
+  if (storeFilter.value !== "all") {
+    filters.push(storeFilter.value);
+  }
+
+  // discount filter
+  if (Number(minDiscountFilter.value) > 0) {
+    filters.push(`${minDiscountFilter.value}% discount or more`);
+  }
+
+  // Sale-only navigation
+  if (saleFilter.checked) {
+    filters.push("Sale games");
+  }
+
+  // Hide the container when no filters are active
+  activeFilters.hidden = filters.length === 0;
+
+  // Create an indicator for each active filter
+  filters.forEach((filter) => {
+    const chip = document.createElement("span");
+
+    chip.classList.add("active-filter-chip");
+    chip.textContent = filter;
+
+    activeFilters.appendChild(chip);
+  });
+}
 
 // Apply the search and sale filters
 
@@ -273,6 +444,25 @@ function applyFilters() {
   // 6. Update the results count
   resultsCount.textContent = `Showing ${filteredGames.length} of ${games.length} games`;
 
-  // 7. Display the final results
+  // 7. Update active filter indicators
+  updateActiveFilters();
+  updateClearFiltersVisibility();
   displayGames(filteredGames);
 }
+
+// Reset all search, filter and sorting controls
+function clearFilters() {
+  searchInput.value = "";
+  storeFilter.value = "all";
+  minDiscountFilter.value = "0";
+  sortFilter.value = "featured";
+
+  saleFilter.checked = false;
+
+  updateActiveNavigation("all");
+
+  applyFilters();
+}
+
+// Start the app once all DOM references and listeners are set up
+loadGames();

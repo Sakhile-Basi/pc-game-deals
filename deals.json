@@ -6,6 +6,7 @@
         "normalPrice": 14.99,
         "salePrice": 7.49,
         "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/367520/Hollow_Knight/",
         "image": "images/hollow-knight.jpg"
     },
     {
@@ -14,6 +15,7 @@
         "normalPrice": 13.99,
         "salePrice": 13.99,
         "store": "GOG",
+        "storeUrl": "https://www.gog.com/en/game/stardew_valley",
         "image": "images/stardew-valley.jpg"
     },
     {
@@ -22,6 +24,7 @@
         "normalPrice": 19.99,
         "salePrice": 4.99,
         "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/504230/",
         "image": "images/celeste.jpg"
     },
     {
@@ -30,6 +33,7 @@
         "normalPrice": 24.99,
         "salePrice": 12.49,
         "store": "Epic Games",
+        "storeUrl": "https://store.epicgames.com/p/hades",
         "image": "images/hades.jpg"
     },
     {
@@ -38,6 +42,7 @@
         "normalPrice": 9.99,
         "salePrice": 0.99,
         "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/620/Portal_2/",
         "image": "images/portal-2.jpg"
     },
     {
@@ -46,6 +51,7 @@
         "normalPrice": 9.99,
         "salePrice": 9.99,
         "store": "GOG",
+        "storeUrl": "https://www.gog.com/en/game/terraria",
         "image": "images/terraria.jpg"
     },
     {
@@ -54,6 +60,7 @@
         "normalPrice": 39.99,
         "salePrice": 9.99,
         "store": "GOG",
+        "storeUrl": "https://www.gog.com/en/game/disco_elysium",
         "image": "images/disco-elysium.jpg"
     },
     {
@@ -62,6 +69,7 @@
         "normalPrice": 19.99,
         "salePrice": 14.99,
         "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/268910/Cuphead/",
         "image": "images/cuphead.jpg"
     }
 ]

@@ -74,6 +74,7 @@
               type="text"
               id="search-input"
               placeholder="Search games..."
+              aria-label="Search games by title"
             />
           </div>
 
@@ -93,7 +94,7 @@
           </div>
 
           <div class="filter-group">
-            <label for="min-discount-filter">Minimum Discount</label>
+            <label for="min-discount-filter">Discount Percentage</label>
             <select id="min-discount-filter">
               <option value="0">Any Discount</option>
               <option value="10">10% or more</option>
@@ -104,19 +105,34 @@
           </div>
         </section>
 
-        <!-- Results and sorting -->
-        <section class="results-controls">
-          <p id="results-count">Showing all games</p>
+        <!-- Active filter indicators -->
+        <div
+          id="active-filters"
+          class="active-filters"
+          hidden
+          aria-live="polite"
+        ></div>
 
-          <div class="filter-group sort-group">
-            <label for="sort-filter">Sort by</label>
-            <select id="sort-filter">
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="discount-desc">Biggest Discount</option>
-              <option value="name-asc">Name: A to Z</option>
-            </select>
+        <!-- Results and sorting -->
+
+        <section class="results-controls">
+          <p id="results-count" aria-live="polite">Showing all games</p>
+
+          <div class="results-actions">
+            <button type="button" id="clear-filters" hidden>
+              Clear Filters
+            </button>
+
+            <div class="filter-group sort-group">
+              <label for="sort-filter">Sort by</label>
+              <select id="sort-filter">
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="discount-desc">Biggest Discount</option>
+                <option value="name-asc">Name: A to Z</option>
+              </select>
+            </div>
           </div>
         </section>
 

@@ -173,6 +173,13 @@ a {
   pointer-events: none;
 }
 
+/* Show keyboard focus on the controls that toggle the hidden checkbox */
+#sidebar-toggle:focus-visible ~ .app-shell .collapse-button,
+#sidebar-toggle:focus-visible ~ .app-shell .mobile-menu-button {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 #sidebar-toggle:checked ~ .app-shell {
   grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
 }
@@ -262,6 +269,14 @@ a {
   background: var(--surface);
   border: 1px solid #eaeae6;
   border-radius: 10px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.search-wrapper:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217, 93, 57, 0.12);
 }
 
 .search-icon {
@@ -283,18 +298,6 @@ a {
   color: var(--text-secondary);
   font-size: 12px;
 }
-
-/* ------------------------------
-   GAME GRID - TEMPORARY CARD STYLE
------------------------------- */
-
-#games-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-}
-
-
 
 /* ------------------------------
    MOBILE SIDEBAR
@@ -374,9 +377,21 @@ a {
   .search-wrapper {
     width: 100%;
   }
+}
 
+/* ------------------------------
+   GAME GRID
+------------------------------ */
+
+#games-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 760px) {
   #games-container {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 15px;
   }
 }
@@ -391,156 +406,370 @@ a {
    GAME CARDS
 ------------------------------ */
 
-#games-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
-}
-
 .game-card {
-    min-width: 0;
-    overflow: hidden;
-    border: 1px solid rgba(234, 234, 230, 0.8);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.65);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(234, 234, 230, 0.8);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
 
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        border-color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 /* Lift the entire card on hover */
 .game-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.09);
-    border-color: rgba(217, 93, 57, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.09);
+  border-color: rgba(217, 93, 57, 0.2);
 }
 
 /* Artwork */
 .game-image-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    background: #e8e7e2;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #e8e7e2;
 }
 
 .game-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Preserve complete artwork for selected games */
 .show-full-art .game-image {
-    object-fit: contain;
+  object-fit: contain;
 }
 
 /* Individual artwork backgrounds */
 .hollow-knight-card .game-image-wrapper {
-    background: #0081CF;
+  background: #0081cf;
 }
 
 .celeste-card .game-image-wrapper {
-    background: #352044;
+  background: #352044;
 }
 
 .cuphead-card .game-image-wrapper {
-    background: #f4c900;
+  background: #f4c900;
 }
 
 /* Sale badge */
 .sale-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    padding: 5px 9px;
-    border-radius: 5px;
-    background: var(--accent);
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    z-index: 1;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: var(--accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 1;
 }
 
 /* Information panel */
 .game-info {
-    height: 76px;
-    padding: 12px 14px;
+  min-height: 100px;
+  padding: 12px 14px;
 
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-    border-top: 1px solid rgba(255, 255, 255, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .game-details {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .game-details h2 {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.3;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
 }
 
 .game-store {
-    margin: 4px 0 0;
-    color: var(--text-secondary);
-    font-size: 12px;
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .game-pricing {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
 }
 
 .normal-price {
-    color: var(--text-secondary);
-    font-size: 12px;
-    text-decoration: line-through;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-decoration: line-through;
 }
 
 .current-price {
-    font-size: 15px;
-    font-weight: 700;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .empty-message {
-    padding: 20px 0;
-    color: var(--text-secondary);
+  padding: 20px 0;
+  color: var(--text-secondary);
 }
 
 /* Mobile adjustments */
 @media (max-width: 760px) {
-    #games-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 15px;
-    }
+  .game-details h2,
+  .current-price {
+    font-size: 13px;
+  }
+}
 
-    .game-details h2,
-    .current-price {
-        font-size: 13px;
-    }
+/* Active filter indicators */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.active-filters[hidden] {
+  display: none;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border-radius: 20px;
+  background: rgba(217, 93, 57, 0.1);
+  border: 1px solid rgba(217, 93, 57, 0.2);
+  color: #a8462d;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ------------------------------
+   FILTER CONTROLS
+------------------------------ */
+
+.filter-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0 0 18px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.filter-group label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.filter-group select {
+  min-width: 150px;
+  padding: 10px 32px 10px 12px;
+  border: 1px solid #eaeae6;
+  border-radius: 9px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.filter-group select:hover {
+  border-color: #c9c9c3;
+}
+
+.filter-group select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217, 93, 57, 0.12);
+}
+
+/* ------------------------------
+   RESULTS AND SORTING
+------------------------------ */
+
+.results-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0;
+}
+
+#results-count {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.results-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#clear-filters {
+  padding: 9px 12px;
+  border: 1px solid #eaeae6;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition:border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+#clear-filters:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(217, 93, 57, 0.05);
+}
+
+.sort-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+}
+
+.sort-group select {
+  min-width: 165px;
+}
+
+/* ------------------------------
+   FILTER RESPONSIVENESS
+------------------------------ */
+
+@media (max-width: 760px) {
+  .filter-controls {
+    gap: 12px;
+  }
+
+  .filter-group select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .results-controls {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .results-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 420px) {
-    #games-container {
-        grid-template-columns: 1fr;
-    }
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group select {
+    width: 100%;
+  }
+
+  .results-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sort-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-group select {
+    flex: 1;
+  }
 }
 
+/* Store product links */
+.store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.store-link:hover {
+  color: #a8462d;
+  text-decoration: underline;
+}
+
+.store-link span {
+  transition: transform 0.2s ease;
+}
+
+.store-link:hover span {
+  transform: translate(2px, -2px);
+}
+
+/* ------------------------------
+   KEYBOARD FOCUS
+------------------------------ */
+
+.store-link:focus-visible,
+#clear-filters:focus-visible,
+.nav-link:focus-visible,
+.collapse-button:focus-visible,
+.mobile-menu-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ------------------------------
+   REDUCED MOTION
+------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
